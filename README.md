@@ -1,97 +1,100 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# SmartHomeMobile
 
-# Getting Started
+Application mobile React Native pour piloter et visualiser une maison connectee :
+pieces, lumieres, portes, RFID, servos et capteurs Arduino.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+Le site web et le backend Spring Boot restent dans le depot partage `smartHome`.
+Ce depot contient uniquement l'application mobile.
 
-## Step 1: Start Metro
+## Prerequis
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- Node.js 22 ou version ulterieure
+- Android Studio avec un emulateur Android, ou un telephone Android configure
+- Backend Spring Boot demarre sur le port `8080`
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## Installation
 
-```sh
-# Using npm
+```powershell
+npm install
+```
+
+## Lancement sur Android
+
+Demarrer Metro dans un premier terminal :
+
+```powershell
 npm start
-
-# OR using Yarn
-yarn start
 ```
 
-## Step 2: Build and run your app
+Lancer l'application dans un second terminal :
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
+```powershell
 npm run android
-
-# OR using Yarn
-yarn android
 ```
 
-### iOS
+Pour l'emulateur Android, l'adresse backend proposee par defaut est :
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+```text
+http://10.0.2.2:8080
 ```
 
-Then, and every time you update your native dependencies, run:
+Pour un telephone physique connecte au meme Wi-Fi que le PC, utiliser l'adresse
+IP locale du PC :
 
-```sh
-bundle exec pod install
+```text
+http://192.168.x.x:8080
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+## Contrat backend attendu
 
-```sh
-# Using npm
-npm run ios
+| Action | Methode et route |
+| --- | --- |
+| Connexion | `POST /api/auth/login` |
+| Inscription | `POST /api/auth/register` |
+| Tester le backend | `GET /users/email/ping@smarthome.local` |
+| Ajouter une piece | `POST /rooms` |
+| Supprimer une piece | `DELETE /rooms/{id}` |
+| Ajouter un module | `POST /devices` |
+| Supprimer un module | `DELETE /devices/{id}` |
+| Commander un module | `PUT /devices/{id}/state?state={state}` |
 
-# OR using Yarn
-yarn ios
+Les valeurs de commande utilisees par l'application sont :
+
+```text
+Lumieres : ON, OFF
+Portes   : OPEN, CLOSED
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+La reponse de connexion et d'inscription doit contenir au minimum :
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+```json
+{
+  "id": 1,
+  "nom": "Dupont",
+  "prenom": "Marie",
+  "email": "marie@example.com",
+  "nomMaison": "Villa Lucide",
+  "role": "admin",
+  "houseId": 1,
+  "homeConfig": []
+}
+```
 
-## Step 3: Modify your app
+## Verification avant partage
 
-Now that you have successfully run the app, let's make changes!
+```powershell
+npm run lint
+npm test -- --runInBand
+cd android
+.\gradlew.bat assembleDebug
+```
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+## Organisation du projet
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+```text
+App.tsx                 Experience principale et appels API
+src/components/         Scene de maison et composants visuels
+assets/                 Logo et illustrations
+android/                Projet Android natif
+ios/                    Projet iOS natif
+```
